@@ -168,10 +168,10 @@ figcaption {
     fill: #A7C957;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
     header {
         background-size: cover;
-        min-height: 20vh !important;
+        min-height: 30vh !important;
     }
     .over {
         display: none;
