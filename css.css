@@ -177,3 +177,15 @@ figcaption {
         display: none;
     }
 }
+@media ((max-height: 500px) and (max-width: 1200px)) {
+    header {
+        background-size: cover;
+        min-height: 70vh !important;
+    }
+    .over {
+        display: none;
+    }
+    .tablet-mode {
+     padding-top: 0px;
+    }
+}
