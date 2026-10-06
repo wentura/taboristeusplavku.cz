@@ -12,6 +12,17 @@
 
 .analytics-settings[hidden] { display: none; }
 
+.analytics-info {
+  display: block;
+  width: fit-content;
+  margin: 0.25rem auto 0;
+  color: white;
+  font: 0.8rem system-ui, sans-serif;
+  text-decoration: underline;
+}
+
+.analytics-banner a { color: inherit; text-decoration: underline; }
+
 .analytics-banner {
   position: fixed;
   z-index: 9999;

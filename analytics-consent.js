@@ -2,7 +2,7 @@
   const id = document.querySelector('meta[name="ga4-measurement-id"]')?.content.trim();
   if (!/^G-[A-Z0-9]+$/.test(id || "")) return;
 
-  const key = "kamil_ga4_analytics_consent_v1";
+  const key = "kamil_ga4_analytics_consent_v2";
   const footer = document.querySelector("footer") || document.body;
   const settings = document.createElement("button");
   settings.type = "button";
@@ -10,10 +10,17 @@
   settings.textContent = "Nastavení cookies";
   settings.addEventListener("click", showBanner);
   footer.appendChild(settings);
+  const info = document.createElement("a");
+  info.className = "analytics-info";
+  info.href = "./cookies.html";
+  info.textContent = "Informace o cookies";
+  footer.appendChild(info);
 
   let choice;
   try {
-    choice = localStorage.getItem(key);
+    const saved = JSON.parse(localStorage.getItem(key));
+    choice = (saved?.choice === "granted" || saved?.choice === "denied") &&
+      Number.isFinite(saved.expiresAt) && saved.expiresAt > Date.now() ? saved.choice : null;
   } catch {
     choice = null;
   }
@@ -56,7 +63,13 @@
   function choose(next) {
     const hadAnalytics = choice === "granted";
     choice = next;
-    try { localStorage.setItem(key, next); } catch { /* Storage may be unavailable. */ }
+    const expires = new Date();
+    if (next === "granted") expires.setFullYear(expires.getFullYear() + 1);
+    else expires.setMonth(expires.getMonth() + 6);
+    try {
+      localStorage.setItem(key, JSON.stringify({ choice: next, expiresAt: expires.getTime() }));
+      localStorage.removeItem("kamil_ga4_analytics_consent_v1");
+    } catch { /* Storage may be unavailable. */ }
     document.querySelector(".analytics-banner")?.remove();
     settings.hidden = false;
     if (next === "granted") start();
@@ -73,13 +86,17 @@
     panel.className = "analytics-banner";
     panel.setAttribute("aria-label", "Nastavení analytických cookies");
     const message = document.createElement("p");
-    message.textContent = "Pomozte nám zjistit, jak lidé web používají. Google Analytics spustíme jen s vaším souhlasem.";
+    message.textContent = "S vaším souhlasem používáme Google Analytics, abychom věděli, jak lidé naše stránky používají a co můžeme zlepšit. Bez souhlasu měření nespustíme. Volbu můžete kdykoli změnit v Nastavení cookies. ";
+    const details = document.createElement("a");
+    details.href = "./cookies.html";
+    details.textContent = "Více o cookies";
+    message.appendChild(details);
     panel.appendChild(message);
     const buttons = document.createElement("div");
     buttons.className = "analytics-actions";
     for (const [label, next, className] of [
       ["Odmítnout", "denied", "analytics-reject"],
-      ["Přijmout analytiku", "granted", "analytics-accept"],
+      ["Povolit analytiku", "granted", "analytics-accept"],
     ]) {
       const button = document.createElement("button");
       button.type = "button";
